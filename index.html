@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Open Dag XR</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = io();
+    </script>
+</head>
+<body>
+    <a-scene>
+        <a-box rotation="0 45 45" scale="1 1 1" position="0 2 -5" color="red"></a-box>
+        <a-plane color="green" position="0 -2 0" rotation="-90 0 0" scale="55 55"></a-plane>
+        <a-sky color="lightblue"></a-sky>
+        <a-camera>
+            <a-cursor color="#fafafa"></a-cursor>
+        </a-camera>
+    </a-scene>
+</body>
+</html>

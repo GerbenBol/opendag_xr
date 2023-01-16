@@ -1,0 +1,24 @@
+{
+  "name": "opendag_xr",
+  "version": "1.0.0",
+  "description": "JS VR gaming",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GerbenBol/opendag_xr.git"
+  },
+  "author": "Gerben Bol",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GerbenBol/opendag_xr/issues"
+  },
+  "homepage": "https://github.com/GerbenBol/opendag_xr#readme",
+  "dependencies": {
+    "aframe": "^1.4.1",
+    "express": "^4.18.2",
+    "socket.io": "^4.5.4"
+  }
+}
