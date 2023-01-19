@@ -6,16 +6,83 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         let socket = io();
+        let id = -1;
+
+        AFRAME.registerComponent('move-log', {
+            init: function() {
+                this.el.addEventListener('thumbstickmoved', this.moveAxis);
+            },
+            moveAxis: function(evt) {
+                if (evt.detail.x > 0.95) move({ x: 0.25, y: 0, z: 0 });
+                if (evt.detail.x < -0.95) move({ x: -0.25, y: 0, z: 0 });
+                if (evt.detail.y > 0.95) move({ x: 0, y: 0, z: -0.25 });
+                if (evt.detail.y < -0.95) move({ x: 0, y: 0, z: 0.25 });
+            }
+        });
+
+        function move(args) {
+            let cam = document.querySelector("a-camera");
+            let curPos = cam.attributes["position"].nodeValue.split(" ");
+            let newpos = { x: curPos[0] + args.x, Y: curPos[1] + args.y, z: curPos[2] + args.z};
+            cam.attributes["position"].nodeValue = newpos.x + " " + newpos.y + " " + newpos.z;
+
+            // Emit new position to everyone else
+            socket.emit('move', id, newpos);
+        }
     </script>
 </head>
 <body>
-    <a-scene>
-        <a-box rotation="0 45 45" scale="1 1 1" position="0 2 -5" color="red"></a-box>
+    <a-scene id="scene">
         <a-plane color="green" position="0 -2 0" rotation="-90 0 0" scale="55 55"></a-plane>
         <a-sky color="lightblue"></a-sky>
-        <a-camera>
+        <a-camera id="cam" class="player" position="0 0 0">
             <a-cursor color="#fafafa"></a-cursor>
+            <a-entity oculus-touch-controls="hand: left" move-log></a-entity>
+            <a-entity oculus-touch-controls="hand: right"></a-entity>
         </a-camera>
     </a-scene>
 </body>
+<script>
+    let pos = "0 0 0";
+    let cam = document.getElementById("cam");
+
+    socket.emit('hi', (response) => {
+        if (response.amount > 1) {
+            pos = "7 0 0";
+            console.log("someone else is here");
+            id = 1;
+
+            spawnOtherPlayer(response.players, 0);
+        } else {
+            console.log("im alone");
+            id = 0;
+        }
+        cam.attributes["position"].nodeValue = pos;
+    });
+
+    socket.on('new-player', function(players) {
+        console.log("someone else joined!");
+        spawnOtherPlayer(players, 1);
+    });
+
+    socket.on('new-pos', function(id, newpos) {
+        let box = document.getElementById("p" + (id + 1));
+        box.attributes["position"].nodeValue = newpos.x + " " + newpos.y + " " + newpos.z;
+    });
+
+    function spawnOtherPlayer(players, id) {
+        let player = players[id];
+        let scene = document.querySelector("a-scene");
+        let box = document.createElement("a-entity");
+        box.setAttribute('geometry', {
+            primitive: 'box',
+            height: 2.5,
+            width: 1
+        });
+        box.object3D.position.set(player.x, player.y, player.z);
+        box.setAttribute('material', 'color', 'red');
+        box.id = "p" + (id + 1);
+        scene.appendChild(box);
+    }
+</script>
 </html>
